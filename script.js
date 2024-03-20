@@ -134,70 +134,167 @@ const updateUI = function (acc) {
   calcDisplaySummary(acc);
 };
 
+///////////////////////////////////////
+// Event handlers
+let currentAccount;
+
+btnLogin.addEventListener('click', function (e) {
+  // Prevent form from submitting
+  e.preventDefault();
+
+  currentAccount = accounts.find(
+    acc => acc.username === inputLoginUsername.value
+  );
+  console.log(currentAccount);
+
+  if (currentAccount?.pin === Number(inputLoginPin.value)) {
+    // Display UI and message
+    labelWelcome.textContent = `Welcome back, ${
+      currentAccount.owner.split(' ')[0]
+    }`;
+    containerApp.style.opacity = 100;
+
+    // Clear input fields
+    inputLoginUsername.value = inputLoginPin.value = '';
+    inputLoginPin.blur();
+
+    // Update UI
+    updateUI(currentAccount);
+  }
+});
+
+btnTransfer.addEventListener('click', function (e) {
+  e.preventDefault();
+  const amount = Number(inputTransferAmount.value);
+  const receiverAcc = accounts.find(
+    acc => acc.username === inputTransferTo.value
+  );
+  inputTransferAmount.value = inputTransferTo.value = '';
+
+  if (
+    amount > 0 &&
+    receiverAcc &&
+    currentAccount.balance >= amount &&
+    receiverAcc?.username !== currentAccount.username
+  ) {
+    // Doing the transfer
+    currentAccount.movements.push(-amount);
+    receiverAcc.movements.push(amount);
+
+    // Update UI
+    updateUI(currentAccount);
+  }
+});
+
+btnLoan.addEventListener('click', function (e) {
+  e.preventDefault();
+
+  const amount = Number(inputLoanAmount.value);
+
+  if (amount > 0 && currentAccount.movements.some(mov => mov >= amount * 0.1)) {
+    // Add movement
+    currentAccount.movements.push(amount);
+
+    // Update UI
+    updateUI(currentAccount);
+  }
+  inputLoanAmount.value = '';
+});
+
+btnClose.addEventListener('click', function (e) {
+  e.preventDefault();
+
+  if (
+    inputCloseUsername.value === currentAccount.username &&
+    Number(inputClosePin.value) === currentAccount.pin
+  ) {
+    const index = accounts.findIndex(
+      acc => acc.username === currentAccount.username
+    );
+    console.log(index);
+    // .indexOf(23)
+
+    // Delete account
+    accounts.splice(index, 1);
+
+    // Hide UI
+    containerApp.style.opacity = 0;
+  }
+
+  inputCloseUsername.value = inputClosePin.value = '';
+});
+
+let sorted = false;
+btnSort.addEventListener('click', function (e) {
+  e.preventDefault();
+  displayMovements(currentAccount.movements, !sorted);
+  sorted = !sorted;
+});
+
 /////////////////////////////////////////////////
 // LECTURES
 
-const currencies = new Map([
-  ['USD', 'United States dollar'],
-  ['EUR', 'Euro'],
-  ['GBP', 'Pound sterling'],
-]);
+// const currencies = new Map([
+//   ['USD', 'United States dollar'],
+//   ['EUR', 'Euro'],
+//   ['GBP', 'Pound sterling'],
+// ]);
 
-const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+// const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 
-/////////////////////////////////////////////////
+// /////////////////////////////////////////////////
 
-let arr = ['a', 'b', 'c', 'd', 'e'];
+// let arr = ['a', 'b', 'c', 'd', 'e'];
 
-console.log(arr.slice(2)); // ['c', 'd', 'e']
-console.log(arr.slice(2, 4)); // ['c', 'd']
-console.log(arr.slice(-2)); // ['d', 'e']
-console.log(arr.slice(-1)); // ['e']
-console.log(arr.slice(1, -2)); // ['b', 'c']
-console.log(arr.slice()); // ['a', 'b', 'c', 'd', 'e']
+// console.log(arr.slice(2)); // ['c', 'd', 'e']
+// console.log(arr.slice(2, 4)); // ['c', 'd']
+// console.log(arr.slice(-2)); // ['d', 'e']
+// console.log(arr.slice(-1)); // ['e']
+// console.log(arr.slice(1, -2)); // ['b', 'c']
+// console.log(arr.slice()); // ['a', 'b', 'c', 'd', 'e']
 
-// Splice
-arr.splice(-1); // ['a', 'b', 'c', 'd']
-console.log(arr); // ['a', 'b', 'c']
+// // Splice
+// arr.splice(-1); // ['a', 'b', 'c', 'd']
+// console.log(arr); // ['a', 'b', 'c']
 
-// Reverse
-let arr2 = ['a', 'b', 'c', 'd', 'e'];
-arr2.reverse(); // ['e', 'd', 'c', 'b', 'a']
-console.log(arr2); // ['e', 'd', 'c', 'b', 'a']
+// // Reverse
+// let arr2 = ['a', 'b', 'c', 'd', 'e'];
+// arr2.reverse(); // ['e', 'd', 'c', 'b', 'a']
+// console.log(arr2); // ['e', 'd', 'c', 'b', 'a']
 
-// Concat
-const letters = arr2.concat(['f', 'g', 'h', 'i']);
-console.log(letters); // ['e', 'd', 'c', 'b', 'a', 'f', 'g', 'h', 'i']
+// // Concat
+// const letters = arr2.concat(['f', 'g', 'h', 'i']);
+// console.log(letters); // ['e', 'd', 'c', 'b', 'a', 'f', 'g', 'h', 'i']
 
-// Join
-console.log(letters.join(' - ')); // e - d - c - b - a - f - g - h - i
-console.log(letters); // e d c b a f g h i
+// // Join
+// console.log(letters.join(' - ')); // e - d - c - b - a - f - g - h - i
+// console.log(letters); // e d c b a f g h i
 
-// Looping Arrays: forEach
-for (const movement of movements) {
-  if (movement > 0) {
-    console.log(`You deposited ${movement}`);
-  } else {
-    console.log(`You withdrew ${Math.abs(movement)}`);
-  }
-}
+// // Looping Arrays: forEach
+// for (const movement of movements) {
+//   if (movement > 0) {
+//     console.log(`You deposited ${movement}`);
+//   } else {
+//     console.log(`You withdrew ${Math.abs(movement)}`);
+//   }
+// }
 
-movements.forEach(function (movement, index, array) {
-  if (movement > 0) {
-    console.log(`Movement ${index + 1}: You deposited ${movement}`);
-  } else {
-    console.log(`Movement ${index + 1}: You withdrew ${Math.abs(movement)}`);
-  }
-});
+// movements.forEach(function (movement, index, array) {
+//   if (movement > 0) {
+//     console.log(`Movement ${index + 1}: You deposited ${movement}`);
+//   } else {
+//     console.log(`Movement ${index + 1}: You withdrew ${Math.abs(movement)}`);
+//   }
+// });
 
-// forEach with Maps and Sets
-// Map
-currencies.forEach(function (value, key) {
-  console.log(`${key}: ${value}`);
-});
+// // forEach with Maps and Sets
+// // Map
+// currencies.forEach(function (value, key) {
+//   console.log(`${key}: ${value}`);
+// });
 
-// Set
-const currenciesUnique = new Set(['USD', 'GBP', 'USD', 'EUR', 'EUR']);
-currenciesUnique.forEach(currency => {
-  console.log(currency);
-});
+// // Set
+// const currenciesUnique = new Set(['USD', 'GBP', 'USD', 'EUR', 'EUR']);
+// currenciesUnique.forEach(currency => {
+//   console.log(currency);
+// });
