@@ -295,3 +295,23 @@ h2 {
 .timer {
   font-weight: 600;
 }
+
+/* Style the test-account un and li */
+.test-accounts {
+  font-size: 1.3rem;
+  color: #777;
+  margin-top: 1rem;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+}
+
+.test-accounts li {
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  display: block;
+}
+
+.test-accounts li span {
+  font-weight: 600;
+}
